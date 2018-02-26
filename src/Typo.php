@@ -25,19 +25,12 @@
 namespace Novutec\TypoSquatting;
 
 /**
- * define TypoSquatting Path
- */
-define('TYPOSQUATTINGPATH', dirname(__FILE__));
-
-/**
  * @see Mapping/AbstractMapping
  */
-require_once TYPOSQUATTINGPATH . '/Mapping/AbstractMapping.php';
+use Novutec\TypoSquatting\Mapping\AbstractMapping;
+use Novutec\TypoSquatting\Result;
+use Novutec\DomainParser\Parser;
 
-/**
- * @see Result
- */
-require_once TYPOSQUATTINGPATH . '/Result.php';
 
 /**
  * TypoSquatting
@@ -54,7 +47,7 @@ class Typo
 
     /**
      * Given domain name as object
-     * 
+     *
      * @var string
      * @access protected
      */
@@ -62,7 +55,7 @@ class Typo
 
     /**
      * Given domain name as hash
-     * 
+     *
      * @var array
      * @access protected
      */
@@ -70,7 +63,7 @@ class Typo
 
     /**
      * TLD of given domain name
-     * 
+     *
      * @var array
      * @access protected
      */
@@ -86,7 +79,7 @@ class Typo
 
     /**
      * Contains the result object
-     * 
+     *
      * @var object
      * @access protected
      */
@@ -94,7 +87,7 @@ class Typo
 
     /**
      * Output format 'object', 'array', 'json', 'serialize' or 'xml'
-     * 
+     *
      * @var string
      * @access protected
      */
@@ -102,7 +95,7 @@ class Typo
 
     /**
      * Mapping object
-     * 
+     *
      * @var object
      * @access protected
      */
@@ -110,7 +103,7 @@ class Typo
 
     /**
      * Use mapping to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -118,7 +111,7 @@ class Typo
 
     /**
      * Use missed letter to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -126,7 +119,7 @@ class Typo
 
     /**
      * Use switching letter to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -134,7 +127,7 @@ class Typo
 
     /**
      * Use double hitted button to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -142,7 +135,7 @@ class Typo
 
     /**
      * Add prefix www directly and with - to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -150,7 +143,7 @@ class Typo
 
     /**
      * Use similiar characters to determine typos
-     * 
+     *
      * @var boolean
      * @access protected
      */
@@ -158,7 +151,7 @@ class Typo
 
     /**
      * Encoding of domain name
-     * 
+     *
      * @var string
      * @access protected
      */
@@ -166,9 +159,9 @@ class Typo
 
     /**
      * Creates a Typo object
-     * 
+     *
      * By default all actions will be done
-     * 
+     *
      * @param  string $format
      * @return void
      */
@@ -179,20 +172,20 @@ class Typo
 
     /**
      * Set domain name
-     * 
+     *
      * @param  string $domain
      * @param  string $defaultTld optional
      * @return void
      */
     private function setDomain($domain, $defaultTld = 'com')
     {
-        $Parser = new \Novutec\Domainparser\Parser();
+        $Parser = new Parser();
         $Domain = $Parser->parse($domain, $defaultTld);
-        
+
         $this->domain = $Domain->domain;
         $this->hash = $this->mb_str_split($Domain->domain);
         $this->tld = $Domain->tld;
-        
+
         if (isset($Domain->error)) {
             $this->Result->error = $Domain->error;
         }
@@ -200,7 +193,7 @@ class Typo
 
     /**
      * Looks up for typos
-     * 
+     *
      * @param  string $domain
      * @param  string $defaultTld optional
      * @return array
@@ -208,72 +201,72 @@ class Typo
     public function lookup($domain, $defaultTld = 'com')
     {
         $this->Result = new Result();
-        
+
         if ($domain !== null) {
             $this->setDomain($domain, $defaultTld);
         } else {
             return $this->Result;
         }
-        
+
         if (! isset($this->Result->error)) {
             $this->Result->addItem('domain', $this->domain . '.' . $this->tld);
-            
+
             if ($this->useMapping) {
                 if (! $this->Mapping instanceof AbstractMapping) {
                     $this->Mapping = AbstractMapping::factory($this->layout);
                 }
-                
+
                 if (is_object($this->Mapping)) {
                     $this->getTyposByMapping();
                 }
             }
-            
+
             if ($this->useMissedLetters) {
                 $this->getTyposByMissedLetters();
             }
-            
+
             if ($this->useSwitchingLetters) {
                 $this->getTyposBySwitchingLetters();
             }
-            
+
             if ($this->useDoubleHit) {
                 if (! $this->Mapping instanceof AbstractMapping) {
                     $this->Mapping = AbstractMapping::factory($this->layout);
                 }
-                
+
                 if (is_object($this->Mapping)) {
                     $this->getTyposByDoubleHit();
                 }
             }
-            
+
             if ($this->useAddingPrefix) {
                 $this->getTyposByAddingPrefix();
             }
-            
+
             if ($this->useSimilarCharacters) {
                 if (! $this->Mapping instanceof AbstractMapping) {
                     $this->Mapping = AbstractMapping::factory($this->layout);
                 }
-                
+
                 if (is_object($this->Mapping)) {
                     $this->getTyposBySimilarCharacters();
                 }
             }
         }
-        
+
         return $this->Result->get($this->format);
     }
 
     /**
      * Use mapping to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposByMapping()
     {
         foreach ($this->hash as $position => $character) {
             $map = $this->Mapping->getMapping($character);
-            
+
             if (! empty($map)) {
                 foreach ($map as $typo) {
                     $this->Result->addItem('typosByMapping', $this->mb_substr_replace($this->domain, $typo, $position, 1) .
@@ -285,7 +278,7 @@ class Typo
 
     /**
      * Use missed letter to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposByMissedLetters()
@@ -298,7 +291,7 @@ class Typo
 
     /**
      * Use switching letter to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposBySwitchingLetters()
@@ -307,9 +300,9 @@ class Typo
             if ($position === sizeof($this->hash) - 1) {
                 break;
             }
-            
+
             $string = $this->mb_substr_replace($this->domain, $this->hash[$position + 1], $position, 1);
-            
+
             if ($string != $this->domain) {
                 $this->Result->addItem('typosBySwitchingLetters', $this->mb_substr_replace($string, $this->hash[$position], $position +
                          1, 1) . '.' . $this->tld);
@@ -319,14 +312,14 @@ class Typo
 
     /**
      * Use double hitted button to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposByDoubleHit()
     {
         foreach ($this->hash as $position => $character) {
             $double = $this->Mapping->getDouble($character);
-            
+
             if (! empty($double)) {
                 foreach ($double as $typo) {
                     $this->Result->addItem('typosByDoubleHit', $this->mb_substr_replace($this->domain, $typo .
@@ -340,7 +333,7 @@ class Typo
 
     /**
      * Add prefix www directly and with - to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposByAddingPrefix()
@@ -351,14 +344,14 @@ class Typo
 
     /**
      * Use similar characters to determine typos
-     * 
+     *
      * @return void
      */
     private function getTyposBySimilarCharacters()
     {
         foreach ($this->hash as $position => $character) {
             $similar = $this->Mapping->getSimilar($character);
-            
+
             if (! empty($similar)) {
                 foreach ($similar as $typo) {
                     $this->Result->addItem('typosBySimilarCharacters', $this->mb_substr_replace($this->domain, $typo, $position, 1) .
@@ -370,7 +363,7 @@ class Typo
 
     /**
      * Returns the IPv4 address by domain name
-     * 
+     *
      * @param  string $domain
      * @return array
      */
@@ -381,7 +374,7 @@ class Typo
 
     /**
      * Set keyboard layout
-     * 
+     *
      * @param  string $layout
      * @return void
      */
@@ -392,9 +385,9 @@ class Typo
 
     /**
      * Set output format
-     * 
+     *
      * You may choose between 'object', 'array', 'json', 'serialize' or 'xml' output format
-     * 
+     *
      * @param  string $format
      * @return void
      */
@@ -416,7 +409,7 @@ class Typo
 
     /**
      * Set filter mapping
-     * 
+     *
      * @param  boolean $useMapping
      * @return void
      */
@@ -427,7 +420,7 @@ class Typo
 
     /**
      * Set filter missed letters
-     * 
+     *
      * @param  boolean $useMissedLetters
      * @return void
      */
@@ -438,7 +431,7 @@ class Typo
 
     /**
      * Set filter switching letters
-     * 
+     *
      * @param  boolean $useSwitchingLetters
      * @return void
      */
@@ -449,7 +442,7 @@ class Typo
 
     /**
      * Set filter double hitted button
-     * 
+     *
      * @param  boolean $useDoubleHit
      * @return void
      */
@@ -460,7 +453,7 @@ class Typo
 
     /**
      * Set filter adding prefix
-     * 
+     *
      * @param  boolean $useAddingPrefix
      * @return void
      */
@@ -485,7 +478,7 @@ class Typo
      * function will mimic substr_replace by using  mb_substr. if mbstring
      * is not compiled within php or not present, it will still try to use
      * substr_replace. encoding can be set by calling the setEncoding method.
-     * 
+     *
      * @param  string $string
      * @param  string $replacement
      * @param  integer $start
@@ -496,7 +489,7 @@ class Typo
     {
         if (extension_loaded('mbstring') === true) {
             $strLength = (is_null($this->encoding) === true) ? mb_strlen($string) : mb_strlen($string, $this->encoding);
-            
+
             if ($start < 0) {
                 $start = max(0, $strLength + $start);
             } else {
@@ -504,7 +497,7 @@ class Typo
                     $start = $strLength;
                 }
             }
-            
+
             if ($length < 0) {
                 $length = max(0, $strLength - $start + $length);
             } else {
@@ -512,26 +505,26 @@ class Typo
                     $length = $strLength;
                 }
             }
-            
+
             if (($start + $length) > $strLength) {
                 $length = $strLength - $start;
             }
-            
+
             if (is_null($this->encoding) === true) {
                 return mb_substr($string, 0, $start) . $replacement .
                          mb_substr($string, $start + $length, $strLength - $start - $length);
             }
-            
+
             return mb_substr($string, 0, $start, $this->encoding) . $replacement .
                      mb_substr($string, $start + $length, $strLength - $start - $length, $this->encoding);
         }
-        
+
         return (is_null($length) === true) ? substr_replace($string, $replacement, $start) : substr_replace($string, $replacement, $start, $length);
     }
 
     /**
      * Splits an string to an array and not destorying the encoding
-     * 
+     *
      * @param  string $string
      * @return array
      */

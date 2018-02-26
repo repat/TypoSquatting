@@ -1,12 +1,12 @@
 <?php
 /**
  * Novutec Domain Tools
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@
 /**
  * @namespace Novutec\TypoSquatting
  */
-namespace Novutec\TypoSquatting;
+namespace Novutec\TypoSquatting\Mapping;
 
 /**
  * AbstractMapping
@@ -45,7 +45,7 @@ abstract class AbstractMapping
 
     /**
      * Double hitted button mapping
-     * 
+     *
      * @var array
      * @access protected
      */
@@ -53,7 +53,7 @@ abstract class AbstractMapping
 
     /**
      * Similiar characters mapping
-     * 
+     *
      * @var array
      * @access protected
      */
@@ -61,7 +61,7 @@ abstract class AbstractMapping
 
     /**
      * Returns the mapping of a possible tpyo by a given character if present
-     * 
+     *
      * @param  mixed $character
      * @return array
      */
@@ -76,7 +76,7 @@ abstract class AbstractMapping
 
     /**
      * Returns the mapping of the double hitted button by a given character if present
-     * 
+     *
      * @param  mixed $character
      * @return array
      */
@@ -106,7 +106,7 @@ abstract class AbstractMapping
 
     /**
      * Load Mapping
-     * 
+     *
      * Returns a mapping object, if given layout is not present it will use En.
      *
      * @param  string $layout
@@ -114,14 +114,11 @@ abstract class AbstractMapping
      */
     public static function factory($layout)
     {
-        if (file_exists(__DIR__ . '/' . ucfirst($layout) . '.php')) {
-            include_once __DIR__ . '/' . ucfirst($layout) . '.php';
-            $classname = 'Novutec\TypoSquatting\Mapping_' . ucfirst($layout);
+        $classname = 'Novutec\TypoSquatting\Mapping\Mapping' . ucfirst($layout);
+        if (class_exists($classname)) {
             return new $classname();
         } else {
-            include_once __DIR__ . '/En.php';
-            $classname = 'Novutec\TypoSquatting\Mapping_En';
-            return new $classname();
+            return new MappingEn();
         }
     }
 }

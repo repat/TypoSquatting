@@ -1,3 +1,9 @@
+### 1.1.6 (Feb 25, 2018)
+* PSR-4
+* class renaming
+* changed composer.json
+* namespace to repat since novutec is taken by 3name
+
 ### 1.1.5 (Mar 18, 2013)
 * changed own version in composer.json
 * fixed release dates in CHANGELOG.md
@@ -22,7 +28,7 @@
 
 ### 1.1.1 (Jul 07, 2012)
 * added `dirname(__FILE__)` to require_once of classes
-* changed format in README.md 
+* changed format in README.md
 
 ### 1.1.0 (Jul 06, 2012)
 * added `setEncoding()` method for setting the encoding of given domain name
@@ -38,7 +44,7 @@
 * changed `__constructer()` method: format is the only parameter now
 
 ### 1.0.1 (Jun 29, 2012)
-* fixed url of DomainParser repository 
+* fixed url of DomainParser repository
 
 ### 1.0.0 (Jun 29, 2012)
 * Initial commit
