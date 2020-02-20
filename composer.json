@@ -4,12 +4,20 @@
   , "description": "A domain name typo finder to determine typos of a domain name."
   , "keywords": ["typosquatting", "typo", "php", "novutec", "domain"]
   , "homepage": "https://github.com/repat/TypoSquatting/"
-  , "author": "Novutec Inc."
+  , "authors":[
+        {
+            "name":"Novutec Inc."
+        },
+        {
+            "name":"repat",
+            "email":"repat@repat.de"
+        }
+    ]
   , "license": "Apache-2.0"
   , "require": {
-  		"novutec/DomainParser": ">=1.1.5"
+  		"novutec/domainparser": "^2.0"
   	}
-  , "version": "1.1.6"
+  , "version": "1.1.7"
   , "autoload": {
        "psr-4": {
            "Novutec\\TypoSquatting\\": "src/"

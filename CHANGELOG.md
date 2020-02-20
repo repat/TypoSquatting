@@ -1,3 +1,7 @@
+### 1.1.7 (Feb 20, 2020)
+* Update composer.json format
+* Update to version `^2.0` of `novutec/domainparser`
+
 ### 1.1.6 (Feb 25, 2018)
 * PSR-4
 * class renaming
